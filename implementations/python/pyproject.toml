@@ -1,0 +1,26 @@
+[build-system]
+requires = ["hatchling>=1.26,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "holocubic-cli-python"
+version = "0.1.0a1"
+description = "Experimental Python CLI for the HoloCubic DevTools API"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Tim-1e" }]
+keywords = ["holocubic", "esp32", "cli", "devtools"]
+classifiers = ["Private :: Do Not Upload"]
+dependencies = []
+
+[project.scripts]
+cubic-py = "holocubic_cli_python.cli:main"
+
+[project.urls]
+Repository = "https://github.com/Tim-1e/holocubic-cli"
+Issues = "https://github.com/Tim-1e/holocubic-cli/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/holocubic_cli_python"]

@@ -19,7 +19,7 @@ This checklist intentionally stops before `npm publish`.
 - [x] `npm run verify:package`
 - [x] Windows local verification
 - [x] Clean Linux verification with official Node 22 and 24 Docker images
-- [ ] GitHub Actions Windows/Ubuntu/macOS matrix
+- [x] GitHub Actions Windows/Ubuntu/macOS matrix
 - [x] Real-device E2E with cleanup
 
 ## Package review

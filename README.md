@@ -8,12 +8,12 @@ DevTools HTTP API.
 | Implementation | Status | Package | Command |
 | --- | --- | --- | --- |
 | [Node.js](implementations/node) | Beta candidate | `@tim-1e/holocubic-cli` | `cubic` |
-| Python | Planned experiment | Not published | `cubic-py` |
-| Rust | Planned experiment | Not published | `cubic-rs` |
+| [Python](implementations/python) | Bootstrap experiment | Not published | `cubic-py` |
+| [Rust](implementations/rust) | Bootstrap experiment | Not published | `cubic-rs` |
 
-Node.js is the current reference implementation. Python and Rust builds will
-be evaluated against the same API and CLI compatibility contract before they
-are considered stable.
+Node.js is the current reference implementation. Python and Rust currently
+implement only the read-only bootstrap handshake and are evaluated against the
+same compatibility fixture before they are considered stable.
 
 ## Shared contract
 
@@ -21,6 +21,9 @@ The deployed firmware API and compatibility rules are documented in
 [`spec/api-v1.md`](spec/api-v1.md). Implementations may use different internal
 designs, but filesystem safety, HTTP behavior, JSON output, and exit-code
 semantics should remain compatible.
+
+The first shared black-box slice is documented in
+[`spec/cli-bootstrap-v1.md`](spec/cli-bootstrap-v1.md).
 
 ## Node.js quick start
 
