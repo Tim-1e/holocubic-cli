@@ -61,6 +61,7 @@ Date: 2026-07-14
 - The repository's `.github/workflows/ci-node.yml` covers Windows, Ubuntu, and
   macOS with Node 22 and 24.
 - The workflow passes `actionlint` locally.
-- macOS execution remains pending until the repository is pushed to GitHub.
+- The first pushed matrix completed successfully on Windows, Ubuntu, and macOS
+  for both Node 22 and Node 24.
 - npm publication was not attempted. The registry currently returns E404 for
   `@tim-1e/holocubic-cli`; npm scope ownership still needs user confirmation.

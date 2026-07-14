@@ -1,0 +1,22 @@
+[package]
+name = "holocubic-cli-rust"
+version = "0.1.0-alpha.1"
+edition = "2024"
+rust-version = "1.85"
+description = "Experimental Rust CLI for the HoloCubic DevTools API"
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/Tim-1e/holocubic-cli"
+homepage = "https://github.com/Tim-1e/holocubic-cli/tree/main/implementations/rust"
+keywords = ["holocubic", "esp32", "cli", "devtools"]
+publish = false
+
+[[bin]]
+name = "cubic-rs"
+path = "src/main.rs"
+
+[dependencies]
+clap = { version = "4.6.1", features = ["derive"] }
+serde_json = "1.0.150"
+ureq = { version = "3.3.0", features = ["json"] }
+url = "2.5.8"

@@ -1,0 +1,45 @@
+name: Bootstrap conformance
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "implementations/**"
+      - "spec/**"
+      - "tools/conformance.py"
+      - ".github/workflows/ci-conformance.yml"
+  pull_request:
+    paths:
+      - "implementations/**"
+      - "spec/**"
+      - "tools/conformance.py"
+      - ".github/workflows/ci-conformance.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: implementations/node/package-lock.json
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - run: npm ci
+        working-directory: implementations/node
+      - run: npm run build
+        working-directory: implementations/node
+      - run: cargo build --locked
+        working-directory: implementations/rust
+      - run: >-
+          python tools/conformance.py
+          --node implementations/node/dist/cli.js
+          --python
+          --rust implementations/rust/target/debug/cubic-rs
