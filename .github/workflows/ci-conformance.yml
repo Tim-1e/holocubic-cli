@@ -2,6 +2,7 @@ name: Bootstrap conformance
 
 on:
   push:
+    branches: [main]
     paths:
       - "implementations/**"
       - "spec/**"
