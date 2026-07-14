@@ -1,0 +1,65 @@
+{
+  "name": "@tim-1e/holocubic-cli",
+  "version": "0.1.0-beta.1",
+  "description": "Cross-platform CLI for HoloCubic DevTools file and app workflows",
+  "type": "module",
+  "bin": {
+    "cubic": "dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\"",
+    "build": "npm run clean && tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "tsx --test --test-concurrency=1 test/**/*.test.ts",
+    "test:coverage": "tsx --test --experimental-test-coverage --test-concurrency=1 test/**/*.test.ts",
+    "test:e2e": "npm run build && node scripts/e2e-device.mjs",
+    "check": "npm run typecheck && npm test && npm run build && npm run verify:package",
+    "pack:check": "npm pack --dry-run",
+    "verify:package": "node scripts/verify-package.mjs",
+    "prepack": "npm run build"
+  },
+  "keywords": [
+    "holocubic",
+    "esp32",
+    "cli",
+    "sd-card",
+    "devtools"
+  ],
+  "author": "Tim-1e",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tim-1e/holocubic-cli.git",
+    "directory": "implementations/node"
+  },
+  "bugs": {
+    "url": "https://github.com/Tim-1e/holocubic-cli/issues"
+  },
+  "homepage": "https://github.com/Tim-1e/holocubic-cli/tree/main/implementations/node#readme",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "dependencies": {
+    "commander": "15.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "26.1.1",
+    "tsx": "4.23.1",
+    "typescript": "7.0.2"
+  }
+}

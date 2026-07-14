@@ -1,0 +1,45 @@
+name: Node CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "implementations/node/**"
+      - "spec/**"
+      - ".github/workflows/ci-node.yml"
+  pull_request:
+    paths:
+      - "implementations/node/**"
+      - "spec/**"
+      - ".github/workflows/ci-node.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: implementations/node
+
+jobs:
+  test:
+    name: ${{ matrix.os }} / Node ${{ matrix.node }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+        node: [22, 24]
+
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+          cache-dependency-path: implementations/node/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - run: npm run verify:package
