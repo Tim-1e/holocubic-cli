@@ -64,4 +64,5 @@ Date: 2026-07-14
 - The first pushed matrix completed successfully on Windows, Ubuntu, and macOS
   for both Node 22 and Node 24.
 - npm publication was not attempted. The registry currently returns E404 for
-  `@tim-1e/holocubic-cli`; npm scope ownership still needs user confirmation.
+  `@princival/holocubic-cli`; the user confirmed ownership of the `princival`
+  npm scope on 2026-07-15.

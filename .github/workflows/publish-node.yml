@@ -1,0 +1,57 @@
+name: Publish Node package
+
+on:
+  push:
+    tags:
+      - "node-v*"
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: publish-node-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.repository == 'Tim-1e/holocubic-cli'
+    runs-on: ubuntu-latest
+    environment:
+      name: npm
+      url: https://www.npmjs.com/package/@princival/holocubic-cli
+    defaults:
+      run:
+        working-directory: implementations/node
+
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+      - name: Use an OIDC-capable npm CLI
+        run: npm install --global npm@11.16.0
+      - name: Verify release tag and channel
+        id: release
+        shell: bash
+        run: |
+          VERSION="$(node -p "require('./package.json').version")"
+          EXPECTED_TAG="node-v${VERSION}"
+          if [[ "${GITHUB_REF_NAME}" != "${EXPECTED_TAG}" ]]; then
+            echo "Expected tag ${EXPECTED_TAG}, got ${GITHUB_REF_NAME}" >&2
+            exit 1
+          fi
+          if [[ "${VERSION}" == *-* ]]; then
+            CHANNEL="${VERSION#*-}"
+            CHANNEL="${CHANNEL%%.*}"
+          else
+            CHANNEL="latest"
+          fi
+          echo "version=${VERSION}" >> "${GITHUB_OUTPUT}"
+          echo "channel=${CHANNEL}" >> "${GITHUB_OUTPUT}"
+      - run: npm ci
+      - run: npm run check
+      - name: Publish ${{ steps.release.outputs.version }} to npm
+        run: npm publish --access public --tag "${{ steps.release.outputs.channel }}"

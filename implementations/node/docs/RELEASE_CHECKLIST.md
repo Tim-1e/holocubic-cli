@@ -1,12 +1,13 @@
 # Release Checklist
 
-This checklist intentionally stops before `npm publish`.
+This checklist covers the first public npm beta and the OIDC release path used
+for later versions.
 
 ## Repository
 
-- [ ] Repository URL, issue URL, license, author, and package scope are confirmed.
-- [ ] npm scope ownership and final package-name availability are confirmed.
-- [ ] Version and changelog are approved.
+- [x] Repository URL, issue URL, license, author, and package scope are confirmed.
+- [x] npm scope ownership and final package-name availability are confirmed.
+- [x] Version and changelog are approved.
 - [x] Working tree contains only intentional release files.
 
 ## Quality gates
@@ -28,13 +29,13 @@ This checklist intentionally stops before `npm publish`.
 - [x] Tarball contains only `dist`, `README.md`, `LICENSE`, and `package.json`.
 - [x] Clean tarball install exposes `cubic --version` and `cubic --help`.
 - [x] No device IP, local config, token, auth file, test fixture, or secret is packed.
-- [ ] README install commands are updated after the final package name is chosen.
+- [x] README install commands are updated after the final package name is chosen.
 
-## Release automation (not executed yet)
+## Release automation
 
-- [ ] Create the public GitHub repository.
-- [ ] Create the npm package/scope and enable 2FA.
+- [x] Create the public GitHub repository.
+- [x] Confirm the npm account owns the `princival` scope.
 - [ ] Configure npm Trusted Publishing for the release workflow.
-- [ ] Add a tag-triggered staged or `next` publishing workflow.
-- [ ] Review `npm publish --dry-run` output.
-- [ ] Publish `0.1.0-beta.1` with the `next` dist-tag only after approval.
+- [x] Add the tag-triggered `publish-node.yml` OIDC workflow.
+- [x] Review `npm publish --dry-run` output.
+- [ ] Publish `0.1.0-beta.2` with the `beta` dist-tag.

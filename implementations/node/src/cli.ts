@@ -20,7 +20,7 @@ import { downloadPath, ensureRemoteDirectory, uploadPath, type TransferProgress 
 import type { DeviceInfo } from "./types.js";
 import { normalizeDeviceUrl } from "./url.js";
 
-export const VERSION = "0.1.0-beta.1";
+export const VERSION = "0.1.0-beta.2";
 
 export interface CliWriter {
   write(chunk: string | Uint8Array): unknown;

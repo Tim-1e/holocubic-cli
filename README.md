@@ -18,7 +18,7 @@ handshake.
 | Node.js | Python | Rust |
 | --- | --- | --- |
 | **Reference · beta candidate** | **Bootstrap experiment** | **Bootstrap experiment** |
-| Package: `@tim-1e/holocubic-cli` | Package: `holocubic-cli-python` | Crate: `holocubic-cli-rust` |
+| Package: `@princival/holocubic-cli` | Package: `holocubic-cli-python` | Crate: `holocubic-cli-rust` |
 | Command: `cubic` | Command: `cubic-py` | Command: `cubic-rs` |
 | Full device, SD-card, DevRun, and app workflow | Version and read-only `info` | Version and read-only `info` |
 | [Details](implementations/node/README.md) | [Details](implementations/python/README.md) | [Details](implementations/rust/README.md) |
@@ -36,7 +36,7 @@ not been published yet. These commands become available after publication.
 Requires Node.js 22.12 or newer. The beta release uses the `beta` dist-tag:
 
 ```sh
-npm install --global @tim-1e/holocubic-cli@beta
+npm install --global @princival/holocubic-cli@beta
 cubic --version
 ```
 
@@ -78,7 +78,7 @@ cubic --version
 ```
 
 `npm link` exposes the local build as the global `cubic` command. Run
-`npm unlink --global @tim-1e/holocubic-cli` to remove the link.
+`npm unlink --global @princival/holocubic-cli` to remove the link.
 
 ### Python
 
@@ -203,6 +203,22 @@ The explicit `--provenance=false` is for a local manual publish; provenance in
 `package.json` is intended for a GitHub Actions OIDC release. After the first
 release, prefer npm Trusted Publishing from a tag-triggered workflow and keep
 the `beta` tag until the package is ready to become `latest`.
+
+Configure the npm Trusted Publisher with these exact values:
+
+| Field | Value |
+| --- | --- |
+| Package | `@princival/holocubic-cli` |
+| Provider | GitHub Actions |
+| Organization or user | `Tim-1e` |
+| Repository | `holocubic-cli` |
+| Workflow filename | `publish-node.yml` |
+| Environment name | `npm` |
+| Allowed action | `npm publish` |
+
+The workflow accepts only a tag equal to `node-v<package.json version>`. It
+derives `beta`, `alpha`, or another pre-release channel from the version and
+uses `latest` only for a stable version.
 
 ### Publish Python to PyPI
 
