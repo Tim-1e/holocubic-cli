@@ -29,6 +29,32 @@ from .transfer import (
 from .url import normalize_device_url
 
 
+class _HelpAfterErrorParser(argparse.ArgumentParser):
+    """Keep argparse semantics while showing the relevant command help on errors."""
+
+    _missing_command: str | None = None
+
+    def show_help_when_command_is_missing(self, destination: str) -> None:
+        self._missing_command = destination
+
+    def error(self, message: str) -> None:
+        if message == f"the following arguments are required: {self._missing_command}":
+            self.print_help(sys.stderr)
+            self.exit(2)
+        print(f"{self.prog}: error: {message}", file=sys.stderr)
+        print(file=sys.stderr)
+        self.print_help(sys.stderr)
+        self.exit(2)
+
+
+def _add_command(
+    subparsers: Any, name: str, description: str, **kwargs: Any
+) -> argparse.ArgumentParser:
+    return subparsers.add_parser(
+        name, help=description, description=description, **kwargs
+    )
+
+
 def _positive_integer(value: str) -> int:
     try:
         parsed = int(value)
@@ -70,7 +96,7 @@ def _add_transfer_options(
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
+    parser = _HelpAfterErrorParser(
         prog="cubic-py",
         description="Manage HoloCubic DevTools devices and SD-card files",
     )
@@ -94,76 +120,89 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--config", help="override the configuration file")
     commands = parser.add_subparsers(dest="command", required=True)
+    parser.show_help_when_command_is_missing("command")
 
-    device = commands.add_parser("device", help="manage saved devices")
+    device = _add_command(commands, "device", "manage saved devices")
     device_commands = device.add_subparsers(dest="device_command", required=True)
-    device_add = device_commands.add_parser("add", help="verify and save a device")
+    device.show_help_when_command_is_missing("device_command")
+    device_add = _add_command(device_commands, "add", "verify and save a device")
     device_add.add_argument("name")
     device_add.add_argument("device_host")
     device_add.add_argument("--no-use", action="store_false", dest="use", default=True)
-    device_commands.add_parser("list", help="list saved devices")
-    device_use = device_commands.add_parser("use", help="select a saved device")
+    _add_command(device_commands, "list", "list saved devices")
+    device_use = _add_command(device_commands, "use", "select a saved device")
     device_use.add_argument("name")
-    device_remove = device_commands.add_parser("remove", help="remove a saved device")
+    device_remove = _add_command(device_commands, "remove", "remove a saved device")
     device_remove.add_argument("name")
 
-    commands.add_parser("ping", help="test the selected device")
-    commands.add_parser("info", help="show device capabilities and transfer limits")
-    list_parser = commands.add_parser("ls", help="list a remote directory")
+    _add_command(commands, "ping", "test the selected device")
+    _add_command(commands, "info", "show device capabilities and transfer limits")
+    list_parser = _add_command(commands, "ls", "list a remote directory")
     list_parser.add_argument("remote", nargs="?")
-    stat_parser = commands.add_parser(
-        "stat", help="show remote file or directory metadata"
+    stat_parser = _add_command(
+        commands, "stat", "show remote file or directory metadata"
     )
     stat_parser.add_argument("remote")
-    cat_parser = commands.add_parser("cat", help="write a remote file to stdout")
+    cat_parser = _add_command(commands, "cat", "write a remote file to stdout")
     cat_parser.add_argument("remote")
-    mkdir_parser = commands.add_parser(
-        "mkdir", help="create a remote directory and missing parents"
+    mkdir_parser = _add_command(
+        commands, "mkdir", "create a remote directory and missing parents"
     )
     mkdir_parser.add_argument("remote")
-    move_parser = commands.add_parser("mv", help="rename or move a remote path")
+    move_parser = _add_command(commands, "mv", "rename or move a remote path")
     move_parser.add_argument("source")
     move_parser.add_argument("target")
-    remove_parser = commands.add_parser("rm", help="remove a remote file or directory")
+    remove_parser = _add_command(commands, "rm", "remove a remote file or directory")
     remove_parser.add_argument("remote")
     remove_parser.add_argument("-r", "--recursive", action="store_true")
     remove_parser.add_argument("-y", "--yes", action="store_true")
 
-    push_parser = commands.add_parser(
-        "push", aliases=["upload"], help="upload a file or directory recursively"
+    push_parser = _add_command(
+        commands,
+        "push",
+        "upload a file or directory recursively",
+        aliases=["upload"],
     )
     push_parser.add_argument("local")
     push_parser.add_argument("remote", nargs="?")
     _add_transfer_options(push_parser)
-    pull_parser = commands.add_parser(
-        "pull", aliases=["download"], help="download a file or directory recursively"
+    pull_parser = _add_command(
+        commands,
+        "pull",
+        "download a file or directory recursively",
+        aliases=["download"],
     )
     pull_parser.add_argument("remote")
     pull_parser.add_argument("local", nargs="?")
     _add_transfer_options(pull_parser, download=True)
 
-    devrun = commands.add_parser("devrun", help="read, save, or run DevRun source")
+    devrun = _add_command(commands, "devrun", "read, save, or run DevRun source")
     devrun_commands = devrun.add_subparsers(dest="devrun_command", required=True)
-    devrun_read = devrun_commands.add_parser("read", help="read DevRun source")
+    devrun.show_help_when_command_is_missing("devrun_command")
+    devrun_read = _add_command(devrun_commands, "read", "read DevRun source")
     devrun_read.add_argument("output", nargs="?")
     devrun_read.add_argument("-f", "--force", action="store_true")
     for name in ("save", "run"):
-        child = devrun_commands.add_parser(
-            name, help=f"{'save and run' if name == 'run' else 'save'} DevRun source"
+        description = f"{'save and run' if name == 'run' else 'save'} DevRun source"
+        child = _add_command(
+            devrun_commands,
+            name,
+            description,
         )
         child.add_argument("file")
 
-    app = commands.add_parser("app", help="list and install SD-card apps")
+    app = _add_command(commands, "app", "list and install SD-card apps")
     app_commands = app.add_subparsers(dest="app_command", required=True)
-    app_commands.add_parser("list", help="list installed apps")
-    app_install = app_commands.add_parser(
-        "install", help="validate and upload an app directory"
+    app.show_help_when_command_is_missing("app_command")
+    _add_command(app_commands, "list", "list installed apps")
+    app_install = _add_command(
+        app_commands, "install", "validate and upload an app directory"
     )
     app_install.add_argument("directory")
     app_install.add_argument("--id")
     app_install.add_argument("-f", "--force", action="store_true")
-    app_remove = app_commands.add_parser(
-        "remove", help="remove an installed app directory"
+    app_remove = _add_command(
+        app_commands, "remove", "remove an installed app directory"
     )
     app_remove.add_argument("id")
     app_remove.add_argument("-y", "--yes", action="store_true", required=True)

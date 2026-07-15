@@ -1,10 +1,13 @@
+use std::env;
+use std::ffi::OsString;
 use std::fs::{self, OpenOptions};
 use std::io::{self, Write};
 use std::path::PathBuf;
 use std::process::ExitCode;
 use std::time::Instant;
 
-use clap::{ArgAction, Args, Parser, Subcommand};
+use clap::error::{ContextKind, ErrorKind};
+use clap::{ArgAction, Args, Command, CommandFactory, Parser, Subcommand};
 use holocubic_cli_rust::app::{validate_app_directory, validate_app_id};
 use holocubic_cli_rust::client::{CubicClient, public_info};
 use holocubic_cli_rust::config::{
@@ -73,6 +76,78 @@ struct Cli {
 
     #[command(subcommand)]
     command: Commands,
+}
+
+fn help_command_for_args(args: &[OsString]) -> Command {
+    let mut command = Cli::command();
+    let mut skip_option_value = false;
+
+    for argument in args.iter().skip(1) {
+        if skip_option_value {
+            skip_option_value = false;
+            continue;
+        }
+
+        let value = argument.to_string_lossy();
+        match value.as_ref() {
+            "-H" | "--host" | "--timeout" | "--config" | "--retries" | "--max-depth"
+            | "--max-entries" | "--max-bytes" | "--id" => {
+                skip_option_value = true;
+                continue;
+            }
+            "--json" | "--quiet" | "--force" | "-f" | "--recursive" | "-r" | "--yes" | "-y"
+            | "--no-use" => continue,
+            "--" | "--help" | "-h" | "--version" | "-V" => break,
+            _ if value.starts_with("--host=")
+                || value.starts_with("--timeout=")
+                || value.starts_with("--config=")
+                || value.starts_with("--retries=")
+                || value.starts_with("--max-depth=")
+                || value.starts_with("--max-entries=")
+                || value.starts_with("--max-bytes=")
+                || value.starts_with("--id=")
+                || (value.starts_with("-H") && value.len() > 2) =>
+            {
+                continue;
+            }
+            _ if value.starts_with('-') => break,
+            _ => {}
+        }
+
+        let Some(subcommand) = command.find_subcommand(argument).cloned() else {
+            break;
+        };
+        command = subcommand;
+    }
+
+    command
+}
+
+fn print_parse_error(mut error: clap::Error, args: &[OsString]) -> ExitCode {
+    let code = error.exit_code();
+    if matches!(
+        error.kind(),
+        ErrorKind::DisplayHelp
+            | ErrorKind::DisplayVersion
+            | ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand
+    ) {
+        let _ = error.print();
+        return ExitCode::from(code as u8);
+    }
+
+    error.remove(ContextKind::Usage);
+    let rendered = error.render().to_string();
+    let summary = rendered
+        .split("\n\nFor more information")
+        .next()
+        .unwrap_or(&rendered)
+        .trim_end();
+    eprintln!("{summary}\n");
+
+    let mut help = help_command_for_args(args);
+    let _ = help.write_long_help(&mut io::stderr());
+    eprintln!();
+    ExitCode::from(code as u8)
 }
 
 #[derive(Subcommand)]
@@ -811,13 +886,13 @@ impl<'a> Runtime<'a> {
 }
 
 fn main() -> ExitCode {
-    let cli = match Cli::try_parse() {
+    let mut args: Vec<OsString> = env::args_os().collect();
+    if let Some(executable) = args.first_mut() {
+        *executable = OsString::from("cubic-rs");
+    }
+    let cli = match Cli::try_parse_from(&args) {
         Ok(cli) => cli,
-        Err(error) => {
-            let code = error.exit_code();
-            let _ = error.print();
-            return ExitCode::from(code as u8);
-        }
+        Err(error) => return print_parse_error(error, &args),
     };
     match Runtime::new(&cli).and_then(|runtime| runtime.execute()) {
         Ok(()) => ExitCode::SUCCESS,
