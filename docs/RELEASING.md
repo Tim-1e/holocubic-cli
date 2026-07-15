@@ -98,22 +98,57 @@ publisher configuration.
 
 ## Rust to crates.io
 
-The first release is intentionally blocked by `publish = false` in
-`implementations/rust/Cargo.toml`. Remove that field only in the reviewed first
-release commit, then run:
+The public crate is `holocubic-cli-rust`, and its installed command is
+`cubic-rs`. crates.io requires the first release to use an API token because a
+Trusted Publisher can only be attached after the crate exists.
+
+For the initial prerelease, confirm `0.1.0-alpha.1` in `Cargo.toml` and run:
 
 ```sh
 cd implementations/rust
 cargo fmt --check
-cargo clippy --all-targets -- -D warnings
+cargo clippy --all-targets --locked -- -D warnings
 cargo test --locked
+cargo build --release --locked
 cargo package --locked
 cargo publish --dry-run --locked
 cargo login
 cargo publish --locked
 ```
 
-Verify `cargo install holocubic-cli-rust --version <version> --locked` from a
-clean Cargo home. After the first crate exists, connect crates.io Trusted
-Publishing to a GitHub Actions release workflow for short-lived OIDC
-credentials.
+`cargo login` stores the crates.io token in Cargo's credentials file. It is
+needed only for the initial manual publication; never add the token to this
+repository or a workflow file.
+
+Verify the published artifact from crates.io rather than the source checkout:
+
+```sh
+cargo install holocubic-cli-rust --version 0.1.0-alpha.1 --locked --root ./target/registry-smoke
+./target/registry-smoke/bin/cubic-rs --version
+```
+
+After the first crate exists, configure its crates.io Trusted Publisher with
+these exact values:
+
+| Field | Value |
+| --- | --- |
+| Crate | `holocubic-cli-rust` |
+| Platform | GitHub |
+| Repository owner | `Tim-1e` |
+| Repository name | `holocubic-cli` |
+| Workflow filename | `publish-rust.yml` |
+| Environment name | `crates-io` |
+
+For later releases, update both `Cargo.toml` and `Cargo.lock`, run all local
+checks, commit and push the release change, then create a tag that exactly
+matches `rust-v<Cargo.toml version>`. For example, stable version `0.1.0` uses:
+
+```sh
+git tag rust-v0.1.0
+git push origin rust-v0.1.0
+```
+
+The tag starts `.github/workflows/publish-rust.yml`. The workflow rejects a tag
+that differs from `Cargo.toml`, repeats formatting, lint, test, release-build,
+and package verification, then exchanges GitHub's OIDC identity for a
+short-lived crates.io token. No `CARGO_REGISTRY_TOKEN` GitHub secret is used.

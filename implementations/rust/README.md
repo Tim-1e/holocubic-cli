@@ -4,9 +4,9 @@
 It supports the same device configuration, SD-card filesystem, recursive
 transfer, DevRun, and app workflows as the Node.js reference.
 
-The crate requires Rust 1.85 or newer. It is source-ready but has not been
-published to crates.io; `publish = false` remains enabled until the first
-release is intentionally prepared.
+The crate requires Rust 1.85 or newer. Version `0.1.0-alpha.1` is prepared for
+the initial crates.io release; until that release exists, install it from
+source.
 
 ## Installation from source
 
@@ -43,9 +43,18 @@ for its transfer limits and safety options.
 
 ```sh
 cargo fmt --check
-cargo clippy --all-targets -- -D warnings
+cargo clippy --all-targets --locked -- -D warnings
 cargo test --locked
+cargo build --release --locked
 cargo package --locked
+cargo publish --dry-run --locked
+```
+
+After a crates.io release exists, install an exact version with:
+
+```sh
+cargo install holocubic-cli-rust --version 0.1.0-alpha.1 --locked
+cubic-rs --version
 ```
 
 The API and CLI contracts live in [`../../spec`](../../spec).

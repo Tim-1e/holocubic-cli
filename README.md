@@ -16,10 +16,10 @@ workflows; Node.js remains the stable reference package.
 
 | Node.js | Python | Rust |
 | --- | --- | --- |
-| **Reference · stable** | **Compatible · alpha** | **Compatible · alpha** |
+| **Reference · stable** | **Compatible · stable** | **Compatible · alpha** |
 | Package: `@princival/holocubic-cli` | Package: `holocubic-cli-python` | Crate: `holocubic-cli-rust` |
 | Command: `cubic` | Command: `cubic-py` | Command: `cubic-rs` |
-| npm: published | PyPI: not published yet | crates.io: not published yet |
+| npm: published | PyPI: published | crates.io: not published yet |
 | [Details](implementations/node/README.md) | [Details](implementations/python/README.md) | [Details](implementations/rust/README.md) |
 
 ## Installation
@@ -31,10 +31,16 @@ npm install --global @princival/holocubic-cli
 cubic --version
 ```
 
-Python and Rust currently install from source. Their future registry commands
-will be `python -m pip install --pre holocubic-cli-python` and
+Python is available from PyPI:
+
+```sh
+python -m pip install holocubic-cli-python
+cubic-py --version
+```
+
+Rust currently installs from source. Its registry command will be
 `cargo install holocubic-cli-rust --version 0.1.0-alpha.1 --locked` after the
-first PyPI and crates.io releases exist.
+first crates.io release exists.
 
 Clone the monorepo once for a source installation:
 

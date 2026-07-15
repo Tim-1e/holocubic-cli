@@ -7,11 +7,13 @@ on:
       - "implementations/rust/**"
       - "spec/**"
       - ".github/workflows/ci-rust.yml"
+      - ".github/workflows/publish-rust.yml"
   pull_request:
     paths:
       - "implementations/rust/**"
       - "spec/**"
       - ".github/workflows/ci-rust.yml"
+      - ".github/workflows/publish-rust.yml"
   workflow_dispatch:
 
 permissions:

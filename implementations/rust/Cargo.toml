@@ -9,7 +9,6 @@ readme = "README.md"
 repository = "https://github.com/Tim-1e/holocubic-cli"
 homepage = "https://github.com/Tim-1e/holocubic-cli/tree/main/implementations/rust"
 keywords = ["holocubic", "esp32", "cli", "devtools"]
-publish = false
 
 [[bin]]
 name = "cubic-rs"
