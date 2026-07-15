@@ -66,4 +66,9 @@ Date: 2026-07-15
 - `@princival/holocubic-cli@0.1.0-beta.1` is available on npm.
 - The user configured npm Trusted Publishing for `Tim-1e/holocubic-cli`,
   `publish-node.yml`, and the GitHub `npm` environment on 2026-07-15.
-- Stable `0.1.0` publication remains the final external gate.
+- GitHub Actions published stable `0.1.0` through npm Trusted Publishing; the
+  release workflow completed successfully without an `NPM_TOKEN` secret.
+- npm exposes `0.1.0` through the `latest` dist-tag and includes a SLSA
+  provenance attestation.
+- A clean registry installation resolved `latest` to `0.1.0`, and both
+  `cubic --version` and `cubic --help` passed.

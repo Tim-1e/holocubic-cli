@@ -37,4 +37,4 @@ This checklist covers the first stable npm release and its OIDC release path.
 - [x] Configure npm Trusted Publishing for the release workflow.
 - [x] Add the tag-triggered `publish-node.yml` OIDC workflow.
 - [x] Review `npm publish --dry-run` output.
-- [ ] Publish `0.1.0` with the `latest` dist-tag.
+- [x] Publish `0.1.0` with the `latest` dist-tag.
