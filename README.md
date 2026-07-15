@@ -17,7 +17,7 @@ handshake.
 
 | Node.js | Python | Rust |
 | --- | --- | --- |
-| **Reference · beta candidate** | **Bootstrap experiment** | **Bootstrap experiment** |
+| **Reference · stable** | **Bootstrap experiment** | **Bootstrap experiment** |
 | Package: `@princival/holocubic-cli` | Package: `holocubic-cli-python` | Crate: `holocubic-cli-rust` |
 | Command: `cubic` | Command: `cubic-py` | Command: `cubic-rs` |
 | Full device, SD-card, DevRun, and app workflow | Version and read-only `info` | Version and read-only `info` |
@@ -28,15 +28,15 @@ Python and Rust are intentionally not feature-equivalent to Node.js yet. Use
 
 ## Remote installation from registries
 
-The registry names are declared in the manifests but the first releases have
-not been published yet. These commands become available after publication.
+The stable Node.js package is published on npm. Python and Rust registry
+releases remain experimental and are not published yet.
 
 ### Node.js / npm
 
-Requires Node.js 22.12 or newer. The beta release uses the `beta` dist-tag:
+Requires Node.js 22.12 or newer. The stable release uses the `latest` dist-tag:
 
 ```sh
-npm install --global @princival/holocubic-cli@beta
+npm install --global @princival/holocubic-cli
 cubic --version
 ```
 
@@ -186,23 +186,20 @@ release.
 
 ### Publish Node.js to npm
 
-The package is already configured as a public scoped package. For a first
-manual beta publication:
+The public scoped package is released through npm Trusted Publishing. Prepare
+and verify the release commit before creating its exact version tag:
 
 ```sh
 cd implementations/node
 npm ci
 npm run check
 npm pack --dry-run
-npm login
-npm whoami
-npm publish --access public --tag beta --provenance=false
+git tag node-v0.1.0
+git push origin node-v0.1.0
 ```
 
-The explicit `--provenance=false` is for a local manual publish; provenance in
-`package.json` is intended for a GitHub Actions OIDC release. After the first
-release, prefer npm Trusted Publishing from a tag-triggered workflow and keep
-the `beta` tag until the package is ready to become `latest`.
+The tag push starts the GitHub Actions release workflow. npm verifies the OIDC
+identity and generates provenance without an `NPM_TOKEN` secret.
 
 Configure the npm Trusted Publisher with these exact values:
 

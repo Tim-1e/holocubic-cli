@@ -1,6 +1,6 @@
-# Pre-release Test Results
+# Release Test Results
 
-Date: 2026-07-14
+Date: 2026-07-15
 
 ## Automated tests
 
@@ -56,13 +56,14 @@ Date: 2026-07-14
 4. Simulated Windows/Linux config paths now use `path.win32` and `path.posix`
    explicitly, preventing host-platform-dependent tests.
 
-## CI and remaining external gate
+## CI and release gate
 
 - The repository's `.github/workflows/ci-node.yml` covers Windows, Ubuntu, and
   macOS with Node 22 and 24.
 - The workflow passes `actionlint` locally.
 - The first pushed matrix completed successfully on Windows, Ubuntu, and macOS
   for both Node 22 and Node 24.
-- npm publication was not attempted. The registry currently returns E404 for
-  `@princival/holocubic-cli`; the user confirmed ownership of the `princival`
-  npm scope on 2026-07-15.
+- `@princival/holocubic-cli@0.1.0-beta.1` is available on npm.
+- The user configured npm Trusted Publishing for `Tim-1e/holocubic-cli`,
+  `publish-node.yml`, and the GitHub `npm` environment on 2026-07-15.
+- Stable `0.1.0` publication remains the final external gate.

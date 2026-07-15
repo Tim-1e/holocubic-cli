@@ -1,6 +1,6 @@
 {
   "name": "@princival/holocubic-cli",
-  "version": "0.1.0-beta.2",
+  "version": "0.1.0",
   "description": "Cross-platform CLI for HoloCubic DevTools file and app workflows",
   "type": "module",
   "bin": {

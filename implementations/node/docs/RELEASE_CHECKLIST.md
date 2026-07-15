@@ -1,7 +1,6 @@
 # Release Checklist
 
-This checklist covers the first public npm beta and the OIDC release path used
-for later versions.
+This checklist covers the first stable npm release and its OIDC release path.
 
 ## Repository
 
@@ -35,7 +34,7 @@ for later versions.
 
 - [x] Create the public GitHub repository.
 - [x] Confirm the npm account owns the `princival` scope.
-- [ ] Configure npm Trusted Publishing for the release workflow.
+- [x] Configure npm Trusted Publishing for the release workflow.
 - [x] Add the tag-triggered `publish-node.yml` OIDC workflow.
 - [x] Review `npm publish --dry-run` output.
-- [ ] Publish `0.1.0-beta.2` with the `beta` dist-tag.
+- [ ] Publish `0.1.0` with the `latest` dist-tag.

@@ -4,8 +4,7 @@
 HTTP API. Version 0.1 focuses on Wi-Fi device configuration, safe SD-card file
 operations, recursive transfer, DevRun, and app installation.
 
-> Pre-release status: this package uses the npm `beta` dist-tag while its first
-> public releases are validated.
+The stable package is published on npm with the `latest` dist-tag.
 
 This is the Node.js reference implementation in the multi-language
 [`holocubic-cli`](../..) repository.
@@ -18,13 +17,11 @@ This is the Node.js reference implementation in the multi-language
 
 ## Installation
 
-After the package is published:
-
 ```sh
-npm install --global @princival/holocubic-cli@beta
+npm install --global @princival/holocubic-cli
 ```
 
-Before publication, development builds can be linked locally:
+Development builds can be linked locally:
 
 ```sh
 cd implementations/node

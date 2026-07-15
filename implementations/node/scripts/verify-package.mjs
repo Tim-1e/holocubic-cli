@@ -50,7 +50,7 @@ try {
   await access(bin);
   const packedCommand = (args) => runNpm(["exec", "--prefix", temp, "--", "cubic", ...args], { cwd: temp });
   const version = packedCommand(["--version"]);
-  assert.equal(version.stdout.trim(), "0.1.0-beta.2");
+  assert.equal(version.stdout.trim(), "0.1.0");
   const help = packedCommand(["--help"]);
   assert.match(help.stdout, /Manage HoloCubic DevTools/);
   console.log(`Package verified: ${record.filename} (${record.size} bytes, ${paths.length} files)`);
