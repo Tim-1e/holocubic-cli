@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "holocubic-cli-python"
-version = "0.1.0a1"
+version = "0.1.0"
 description = "Python CLI for HoloCubic DevTools file and app workflows"
 readme = "README.md"
 requires-python = ">=3.10"
