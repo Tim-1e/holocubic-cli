@@ -30,7 +30,7 @@ class RemotePathTests(unittest.TestCase):
             root = Path(directory)
             self.assertEqual(
                 safe_local_destination(root, "nested/file.txt"),
-                root / "nested" / "file.txt",
+                root.resolve() / "nested" / "file.txt",
             )
             with self.assertRaises(UsageError):
                 safe_local_destination(root, "../escape.txt")

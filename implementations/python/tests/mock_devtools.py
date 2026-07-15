@@ -32,7 +32,7 @@ class MockDevTools:
         self.malicious_list_entry = malicious_list_entry
         self.info_delay = info_delay
         self.requests: list[tuple[str, str]] = []
-        self.root = Path(tempfile.mkdtemp(prefix="cubic-py-mock-"))
+        self.root = Path(tempfile.mkdtemp(prefix="cubic-py-mock-")).resolve()
         (self.root / "apps" / "devrun").mkdir(parents=True)
         (self.root / "apps" / "devrun" / "main.lua").write_text(
             "print('ready')\n", encoding="utf-8"
