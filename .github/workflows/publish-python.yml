@@ -1,0 +1,61 @@
+name: Publish Python package
+
+on:
+  push:
+    tags:
+      - "python-v*"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-python-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.repository == 'Tim-1e/holocubic-cli'
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/holocubic-cli-python/
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        working-directory: implementations/python
+
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+      - name: Install Python 3.13
+        run: uv python install 3.13
+      - name: Verify release tag
+        shell: bash
+        run: |
+          VERSION="$(uv version --short)"
+          EXPECTED_TAG="python-v${VERSION}"
+          if [[ "${GITHUB_REF_NAME}" != "${EXPECTED_TAG}" ]]; then
+            echo "Expected tag ${EXPECTED_TAG}, got ${GITHUB_REF_NAME}" >&2
+            exit 1
+          fi
+      - name: Sync locked environment
+        run: uv sync --locked
+      - name: Lint
+        run: uvx ruff check src tests
+      - name: Check formatting
+        run: uvx ruff format --check src tests
+      - name: Test
+        run: uv run --locked python -m unittest discover -s tests -v
+      - name: Build distributions
+        run: uv build --clear --no-sources
+      - name: Check distribution metadata
+        run: uvx twine check dist/*
+      - name: Smoke-test wheel
+        run: uv run --isolated --no-project --with dist/*.whl cubic-py --version
+      - name: Smoke-test source distribution
+        run: uv run --isolated --no-project --with dist/*.tar.gz cubic-py --version
+      - name: Publish to PyPI with OIDC
+        run: uv publish --trusted-publishing always dist/*

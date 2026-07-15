@@ -44,28 +44,57 @@ Configure npm Trusted Publishing with these exact values:
 
 ## Python to PyPI
 
+The public package is `holocubic-cli-python` and uses PyPI Trusted Publishing.
 Confirm the name and version in `implementations/python/pyproject.toml`, then
 build and inspect both distributions:
 
 ```sh
 cd implementations/python
-python -m pip install --upgrade build twine
-python -m pip install --editable .
-python -m unittest discover -s tests -v
-python -m build
-python -m twine check dist/*
+uv sync --locked
+uvx ruff check src tests
+uvx ruff format --check src tests
+uv run --locked python -m unittest discover -s tests -v
+uv build --clear --no-sources
+uvx twine check dist/*
+uv publish --dry-run dist/*
 ```
 
-TestPyPI and production PyPI use separate accounts and credentials:
+Smoke-test the built wheel and source distribution rather than the editable
+checkout. For example:
 
 ```sh
-python -m twine upload --repository testpypi dist/*
-python -m twine upload dist/*
+uv run --isolated --no-project --with dist/*.whl cubic-py --version
+uv run --isolated --no-project --with dist/*.tar.gz cubic-py --version
 ```
 
-Verify installation in a clean virtual environment after each upload. For
-later releases, add PyPI Trusted Publishing through GitHub Actions instead of
-storing a long-lived API token.
+After confirming the version, create and push a tag that exactly matches
+`python-v<pyproject.toml version>`. For example, version `0.1.0` must use:
+
+```sh
+git tag python-v0.1.0
+git push origin python-v0.1.0
+```
+
+The tag starts `.github/workflows/publish-python.yml`. The workflow rejects a
+tag that differs from `pyproject.toml`, repeats the checks above, tests both
+distribution formats, and publishes through OIDC without a `PYPI_TOKEN`
+secret.
+
+Configure the PyPI Trusted Publisher with these exact values:
+
+| Field | Value |
+| --- | --- |
+| PyPI project | `holocubic-cli-python` |
+| Owner | `Tim-1e` |
+| Repository | `holocubic-cli` |
+| Workflow filename | `publish-python.yml` |
+| Environment name | `pypi` |
+
+For an existing project, add the publisher under `Manage` → `Publishing`. For
+a project that has not been created yet, the same values can be registered as
+a pending publisher under the account-level `Publishing` page. TestPyPI is a
+separate registry and requires its own account, credentials, and trusted
+publisher configuration.
 
 ## Rust to crates.io
 
