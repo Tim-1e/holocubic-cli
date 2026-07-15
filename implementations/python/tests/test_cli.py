@@ -111,6 +111,36 @@ class CliTests(unittest.TestCase):
             self.assertEqual(result.returncode, 2)
             self.assertEqual(result.stdout, "")
 
+    def test_parse_errors_show_full_relevant_help(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            cwd = Path(directory)
+            config = cwd / "config.json"
+            cases = (
+                ((), False, "Manage HoloCubic DevTools", "device"),
+                (
+                    ("unknown-command",),
+                    True,
+                    "Manage HoloCubic DevTools",
+                    "device",
+                ),
+                (("stat",), True, "usage: cubic-py stat", "remote"),
+                (("device",), False, "manage saved devices", "add"),
+                (
+                    ("--timeout", "invalid", "info"),
+                    True,
+                    "Manage HoloCubic DevTools",
+                    "device",
+                ),
+            )
+            for arguments, expect_error, help_marker, command_marker in cases:
+                with self.subTest(arguments=arguments):
+                    result = self.run_cli(cwd, config, *arguments, check=False)
+                    self.assertEqual(result.returncode, 2)
+                    self.assertEqual(result.stdout, "")
+                    self.assertEqual("error:" in result.stderr, expect_error)
+                    self.assertIn(help_marker, result.stderr)
+                    self.assertIn(command_marker, result.stderr)
+
 
 if __name__ == "__main__":
     unittest.main()
