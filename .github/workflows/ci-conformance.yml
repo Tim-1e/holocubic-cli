@@ -1,4 +1,4 @@
-name: Bootstrap conformance
+name: Full CLI conformance
 
 on:
   push:

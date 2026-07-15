@@ -1,28 +1,31 @@
-from urllib.parse import SplitResult, urlsplit, urlunsplit
+from collections.abc import Mapping
+from urllib.parse import SplitResult, urlencode, urlsplit, urlunsplit
+
+from .errors import UsageError
 
 
 def normalize_device_url(value: str) -> str:
     trimmed = value.strip()
     if not trimmed:
-        raise ValueError("Device host cannot be empty.")
+        raise UsageError("Device host cannot be empty.")
     if "\0" in trimmed:
-        raise ValueError("Device host contains an invalid NUL character.")
+        raise UsageError("Device host contains an invalid NUL character.")
 
     candidate = trimmed if "://" in trimmed else f"http://{trimmed}"
     try:
         parsed = urlsplit(candidate)
         _ = parsed.port
     except ValueError as error:
-        raise ValueError(f"Invalid device host: {value}") from error
+        raise UsageError(f"Invalid device host: {value}") from error
 
     if parsed.scheme not in {"http", "https"}:
-        raise ValueError(f"Unsupported device URL scheme: {parsed.scheme}")
+        raise UsageError(f"Unsupported device URL scheme: {parsed.scheme}")
     if not parsed.hostname:
-        raise ValueError(f"Invalid device host: {value}")
+        raise UsageError(f"Invalid device host: {value}")
     if parsed.username is not None or parsed.password is not None:
-        raise ValueError("Credentials are not allowed in the device URL.")
+        raise UsageError("Credentials are not allowed in the device URL.")
     if parsed.query or parsed.fragment:
-        raise ValueError("Device URL must not contain a query string or fragment.")
+        raise UsageError("Device URL must not contain a query string or fragment.")
 
     path = parsed.path.rstrip("/")
     if path in {"", "/devtools"}:
@@ -30,7 +33,20 @@ def normalize_device_url(value: str) -> str:
     elif path == "/devtools/api":
         path = "/devtools"
     else:
-        raise ValueError("Device URL path must be /devtools or /devtools/api.")
+        raise UsageError("Device URL path must be /devtools or /devtools/api.")
 
     normalized = SplitResult(parsed.scheme.lower(), parsed.netloc, path, "", "")
     return urlunsplit(normalized)
+
+
+def api_url(
+    base_url: str,
+    route: str,
+    query: Mapping[str, str | int | bool | None] | None = None,
+) -> str:
+    clean_route = route.lstrip("/")
+    pairs = [
+        (key, str(value)) for key, value in (query or {}).items() if value is not None
+    ]
+    suffix = f"?{urlencode(pairs)}" if pairs else ""
+    return f"{base_url}/api/{clean_route}{suffix}"

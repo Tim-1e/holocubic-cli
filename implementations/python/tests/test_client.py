@@ -1,53 +1,62 @@
-import json
-import threading
 import unittest
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-from holocubic_cli_python.client import fetch_info, public_info
+from holocubic_cli_python.client import CubicClient
+from holocubic_cli_python.errors import CubicError, HttpError
+from holocubic_cli_python.models import LEGACY_V1_CAPABILITIES
 
-
-FIXTURE = {
-    "ok": True,
-    "version": "conformance-fixture",
-    "root_path": "/sd",
-    "chunk_size": 262144,
-    "max_file_size": 67108864,
-    "run_app_id": "devrun",
-    "run_app_main": "/sd/apps/devrun/main.lua",
-}
-
-
-class Handler(BaseHTTPRequestHandler):
-    def do_GET(self) -> None:
-        if self.path != "/devtools/api/info":
-            self.send_error(404)
-            return
-        body = json.dumps(FIXTURE).encode()
-        self.send_response(200)
-        self.send_header("Content-Type", "application/json")
-        self.send_header("Content-Length", str(len(body)))
-        self.end_headers()
-        self.wfile.write(body)
-
-    def log_message(self, _format: str, *args: object) -> None:
-        del args
+from mock_devtools import MockDevTools
 
 
 class ClientTests(unittest.TestCase):
-    def test_fetches_and_normalizes_legacy_info(self) -> None:
-        server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
-        thread = threading.Thread(target=server.serve_forever, daemon=True)
-        thread.start()
-        try:
-            info = fetch_info(f"127.0.0.1:{server.server_port}")
-        finally:
-            server.shutdown()
-            server.server_close()
-            thread.join()
-        self.assertEqual(info["api_version"], 1)
-        self.assertEqual(info["root_path"], "/sd")
-        self.assertIn("fs.read", info["capabilities"])
+    def test_legacy_handshake_and_explicit_capabilities(self) -> None:
+        with MockDevTools() as mock:
+            info = CubicClient(mock.base_url).info()
+            self.assertEqual(info.api_version, 1)
+            self.assertEqual(info.capabilities, LEGACY_V1_CAPABILITIES)
+        with MockDevTools(capabilities=["fs.list"]) as mock:
+            client = CubicClient(mock.base_url)
+            self.assertEqual(client.info().capabilities, ("fs.list",))
+            with self.assertRaisesRegex(CubicError, "fs.mkdir"):
+                client.mkdir("/sd/nope")
+            self.assertNotIn(("POST", "mkdir"), mock.requests)
 
-    def test_rejects_invalid_handshake(self) -> None:
-        with self.assertRaises(ValueError):
-            public_info({"ok": True, **{key: value for key, value in FIXTURE.items() if key != "root_path"}}, "http://host/devtools")
+    def test_filesystem_and_binary_routes(self) -> None:
+        with MockDevTools(chunk_size=3) as mock:
+            (mock.root / "folder").mkdir()
+            (mock.root / "empty").mkdir()
+            (mock.root / "folder" / "空 格.bin").write_bytes(bytes((0, 1, 2, 255)))
+            client = CubicClient(mock.base_url)
+            self.assertEqual(client.list("/sd/empty").items, ())
+            self.assertEqual(client.list("/sd/folder").items[0].name, "空 格.bin")
+            first = client.read("/sd/folder/空 格.bin", 0, 3)
+            second = client.read("/sd/folder/空 格.bin", first.next_offset, 3)
+            self.assertEqual(first.data, bytes((0, 1, 2)))
+            self.assertFalse(first.eof)
+            self.assertEqual(second.data, bytes((255,)))
+            self.assertTrue(second.eof)
+            client.mkdir("/sd/new")
+            client.upload("/sd/new/file.bin", bytes((9, 8)), 0, 4)
+            self.assertTrue(client.upload("/sd/new/file.bin", bytes((7, 6)), 2, 4).done)
+            client.rename("/sd/new/file.bin", "/sd/new/moved.bin")
+            client.remove("/sd/new/moved.bin")
+            client.rmdir("/sd/new")
+            self.assertIsNone(client.stat_or_none("/sd/new"))
+
+    def test_apps_devrun_http_errors_and_timeout(self) -> None:
+        with MockDevTools() as mock:
+            client = CubicClient(mock.base_url)
+            self.assertEqual(client.apps().apps[0]["id"], "devrun")
+            self.assertIn("ready", client.read_devrun())
+            self.assertFalse(client.save_devrun("print('saved')\n").launched)
+            self.assertTrue(client.save_devrun("print('run')\n", True).launched)
+            with self.assertRaises(HttpError) as caught:
+                client.stat("/sd/missing")
+            self.assertEqual(caught.exception.status, 404)
+        with MockDevTools(info_delay=0.1) as mock:
+            with self.assertRaises(CubicError) as caught:
+                CubicClient(mock.base_url, 20).info()
+            self.assertEqual(caught.exception.code, "TIMEOUT")
+
+
+if __name__ == "__main__":
+    unittest.main()
