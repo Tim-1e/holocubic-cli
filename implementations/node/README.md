@@ -4,10 +4,12 @@
 HTTP API. Version 0.1 focuses on Wi-Fi device configuration, safe SD-card file
 operations, recursive transfer, DevRun, and app installation.
 
-The stable package is published on npm with the `latest` dist-tag.
+Stable version `0.1.0` is published on
+[`npm`](https://www.npmjs.com/package/@princival/holocubic-cli) with the
+`latest` dist-tag.
 
 This is the Node.js reference implementation in the multi-language
-[`holocubic-cli`](../..) repository.
+[`holocubic-cli`](https://github.com/Tim-1e/holocubic-cli) repository.
 
 ## Requirements
 
@@ -47,7 +49,7 @@ node dist/cli.js --help
 ```
 
 The complete release gate is documented in
-[`docs/TEST_PLAN.md`](docs/TEST_PLAN.md).
+[`docs/TEST_PLAN.md`](https://github.com/Tim-1e/holocubic-cli/blob/main/implementations/node/docs/TEST_PLAN.md).
 
 ## Command overview
 

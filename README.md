@@ -1,100 +1,86 @@
-# HoloCubic CLI
+# HoloCubic CLI 🧊⌨️
+
+[![English](https://img.shields.io/badge/README-English-4C9AFF?style=for-the-badge&logo=github)](README.md)
+[![简体中文](https://img.shields.io/badge/README-简体中文-F06292?style=for-the-badge&logo=github)](README.zh-CN.md)
+
+## Part of the HoloCubic ecosystem
+
+| 🧊 Firmware & device | 🧩 App ecosystem | ⌨️ CLI companion |
+| --- | --- | --- |
+| **[clocteck/holocubic-nes-esp32](https://github.com/clocteck/holocubic-nes-esp32)** | **[clocteck/holocubic-apps](https://github.com/clocteck/holocubic-apps)** | **[Tim-1e/holocubic-cli](https://github.com/Tim-1e/holocubic-cli)** |
+| Upstream firmware and DevTools | Upstream HoloCubic applications | Cross-platform device automation |
+| Official upstream repository | Official upstream repository | Community companion · you are here ✨ |
+
+HoloCubic CLI is a community companion project for the two upstream HoloCubic
+repositories above. It does not replace the firmware or app collection; it
+makes their DevTools workflow scriptable from Windows, Linux, and macOS.
+
+[![npm](https://img.shields.io/npm/v/%40princival%2Fholocubic-cli?label=npm&color=CB3837)](https://www.npmjs.com/package/@princival/holocubic-cli)
+[![PyPI](https://img.shields.io/pypi/v/holocubic-cli-python?label=PyPI&color=3775A9)](https://pypi.org/project/holocubic-cli-python/)
+[![crates.io](https://img.shields.io/crates/v/holocubic-cli-rust?label=crates.io&color=DEA584)](https://crates.io/crates/holocubic-cli-rust)
+[![License](https://img.shields.io/github/license/Tim-1e/holocubic-cli)](LICENSE)
 
 [![Node CI](https://github.com/Tim-1e/holocubic-cli/actions/workflows/ci-node.yml/badge.svg?branch=main)](https://github.com/Tim-1e/holocubic-cli/actions/workflows/ci-node.yml)
 [![Python CI](https://github.com/Tim-1e/holocubic-cli/actions/workflows/ci-python.yml/badge.svg?branch=main)](https://github.com/Tim-1e/holocubic-cli/actions/workflows/ci-python.yml)
 [![Rust CI](https://github.com/Tim-1e/holocubic-cli/actions/workflows/ci-rust.yml/badge.svg?branch=main)](https://github.com/Tim-1e/holocubic-cli/actions/workflows/ci-rust.yml)
 [![Full CLI conformance](https://github.com/Tim-1e/holocubic-cli/actions/workflows/ci-conformance.yml/badge.svg?branch=main)](https://github.com/Tim-1e/holocubic-cli/actions/workflows/ci-conformance.yml)
 
-Cross-platform command-line clients for the HoloCubic DevTools HTTP API. All
-three implementations expose the same device, SD-card, DevRun, and app
-workflows; Node.js remains the stable reference package.
+HoloCubic CLI provides three stable, cross-platform command-line clients for
+the HoloCubic DevTools HTTP API. Choose the runtime you already use; all three
+implementations expose the same device, SD-card, DevRun, and app workflows.
 
+> [!WARNING]
 > The current DevTools API has no authentication. Use it only on a trusted
 > local network and never expose the device HTTP service to the public internet.
 
-## Implementations
+## Stable packages
 
 | Node.js | Python | Rust |
 | --- | --- | --- |
-| **Reference · stable** | **Compatible · stable** | **Compatible · alpha** |
-| Package: `@princival/holocubic-cli` | Package: `holocubic-cli-python` | Crate: `holocubic-cli-rust` |
+| **Reference · stable** | **Compatible · stable** | **Compatible · stable** |
+| Package: [`@princival/holocubic-cli`](https://www.npmjs.com/package/@princival/holocubic-cli) | Package: [`holocubic-cli-python`](https://pypi.org/project/holocubic-cli-python/) | Crate: [`holocubic-cli-rust`](https://crates.io/crates/holocubic-cli-rust) |
 | Command: `cubic` | Command: `cubic-py` | Command: `cubic-rs` |
-| npm: published | PyPI: published | crates.io: not published yet |
-| [Details](implementations/node/README.md) | [Details](implementations/python/README.md) | [Details](implementations/rust/README.md) |
+| Node.js 22.12+ | Python 3.10+ | Rust 1.85+ |
+| [Implementation details](implementations/node/README.md) | [Implementation details](implementations/python/README.md) | [Implementation details](implementations/rust/README.md) |
+
+All three packages are released as version `0.1.0`.
 
 ## Installation
 
-The stable npm package requires Node.js 22.12 or newer:
+Install one implementation. You do not need all three.
+
+### Node.js / npm
 
 ```sh
 npm install --global @princival/holocubic-cli
 cubic --version
 ```
 
-Python is available from PyPI:
+### Python / PyPI
 
 ```sh
 python -m pip install holocubic-cli-python
 cubic-py --version
 ```
 
-Rust currently installs from source. Its registry command will be
-`cargo install holocubic-cli-rust --version 0.1.0-alpha.1 --locked` after the
-first crates.io release exists.
-
-Clone the monorepo once for a source installation:
+With uv, the CLI can be installed as an isolated tool:
 
 ```sh
-git clone https://github.com/Tim-1e/holocubic-cli.git
-cd holocubic-cli
-```
-
-### Node.js from source
-
-```sh
-cd implementations/node
-npm ci
-npm run check
-npm link
-cubic --version
-```
-
-### Python from source
-
-```sh
-cd implementations/python
-python -m venv .venv
-```
-
-Activate the environment, then install in editable mode:
-
-```powershell
-# Windows PowerShell
-.\.venv\Scripts\Activate.ps1
-python -m pip install --editable .
+uv tool install holocubic-cli-python
 cubic-py --version
 ```
 
-```sh
-# Linux and macOS
-. .venv/bin/activate
-python -m pip install --editable .
-cubic-py --version
-```
-
-### Rust from source
+### Rust / crates.io
 
 ```sh
-cd implementations/rust
-cargo test --locked
-cargo install --path . --locked
+cargo install holocubic-cli-rust --version 0.1.0 --locked
 cubic-rs --version
 ```
 
 ## Quick start
 
-The examples use `cubic`. Substitute `cubic-py` or `cubic-rs` to use another
-implementation.
+The examples use `cubic`. Substitute `cubic-py` or `cubic-rs` when using the
+Python or Rust package.
 
 ```sh
 cubic device add desk 192.168.3.26
@@ -114,15 +100,35 @@ cubic --host 192.168.3.26 --json info
 Target resolution order is `--host`, `CUBIC_HOST`, then the selected saved
 device. `CUBIC_CONFIG` can isolate the configuration file in scripts and CI.
 
-## Shared functional modules
+## Built for developers and agents
 
-| Module | Node.js | Python | Rust |
-| --- | --- | --- | --- |
-| Device connection | Saved profiles, temporary host, ping, capability discovery, JSON | Same | Same |
-| SD-card filesystem | List, inspect, read, create, rename, delete, recursive upload/download | Same | Same |
-| Developer workflow | DevRun read/save/run and app list/install/remove | Same | Same |
+- **Developers** can manage SD-card files and apps directly from a terminal,
+  automate repeated deployment steps, and keep device profiles locally.
+- **Scripts and CI** can select a device explicitly, isolate configuration with
+  `CUBIC_CONFIG`, consume `--json` output, and rely on meaningful exit codes.
+- **AI agents** can install any of the three packages and invoke the CLI as a
+  controlled subprocess instead of reproducing the DevTools HTTP protocol.
 
-All implementations support this command surface:
+A machine-friendly session can begin with read-only discovery:
+
+```sh
+cubic --host 192.168.3.26 --json ping
+cubic --host 192.168.3.26 --json info
+cubic --host 192.168.3.26 --json ls /sd/apps
+```
+
+Agents should prefer explicit hosts and JSON output, inspect before mutating,
+and preserve the CLI's `--force`, `--recursive`, and `--yes` safeguards.
+
+## What it can do
+
+| Module | Capabilities |
+| --- | --- |
+| 🔌 Device connection | Saved profiles, temporary hosts, ping, capability discovery, and JSON output |
+| 💾 SD-card filesystem | List, inspect, read, create, rename, delete, and recursive upload/download |
+| 🛠️ Developer workflow | DevRun read/save/run plus app list/install/remove |
+
+All implementations support the same command surface:
 
 ```text
 device add|list|use|remove
@@ -145,6 +151,19 @@ They enforce depth, entry-count, and download-size limits, reject symbolic
 links, and commit through temporary siblings. Existing targets require
 `--force`; recursive deletion requires `--recursive --yes`.
 
+## Source installation
+
+```sh
+git clone https://github.com/Tim-1e/holocubic-cli.git
+cd holocubic-cli
+```
+
+Then use the development instructions in the relevant implementation README:
+
+- [Node.js](implementations/node/README.md)
+- [Python](implementations/python/README.md)
+- [Rust](implementations/rust/README.md)
+
 ## Contract, tests, and CI
 
 The device API is documented in [`spec/api-v1.md`](spec/api-v1.md), and shared
@@ -159,10 +178,13 @@ CLI behavior is defined in [`spec/cli-v1.md`](spec/cli-v1.md).
 
 The conformance gate covers saved devices, recursive binary and empty-folder
 round trips, rename/delete safeguards, DevRun, app workflows, JSON output, and
-exit codes.
+exit codes. Maintainer release procedures are documented in
+[`docs/RELEASING.md`](docs/RELEASING.md).
 
-## Maintainer releases
+## Support the project 💙
 
-Registry credentials, OIDC settings, immutable-version checks, tags, and
-first-release steps belong in the maintainer guide rather than the project
-homepage. See [`docs/RELEASING.md`](docs/RELEASING.md).
+If this companion makes your HoloCubic workflow easier, please use it, share
+it with other HoloCubic users, and give the repository a ⭐. Issues and focused
+pull requests are welcome.
+
+Released under the [MIT License](LICENSE).

@@ -4,8 +4,22 @@
 contract. It supports the same device configuration, SD-card filesystem,
 recursive transfer, DevRun, and app workflows as the Node.js reference.
 
-The package requires Python 3.10 or newer. It is source-ready but has not been
-published to PyPI yet.
+The package requires Python 3.10 or newer. Stable version `0.1.0` is published
+on [`PyPI`](https://pypi.org/project/holocubic-cli-python/).
+
+## Installation
+
+```sh
+python -m pip install holocubic-cli-python
+cubic-py --version
+```
+
+Alternatively, install it as an isolated uv tool:
+
+```sh
+uv tool install holocubic-cli-python
+cubic-py --version
+```
 
 ## Installation from source
 
@@ -43,12 +57,12 @@ for its transfer limits and safety options.
 ## Development checks
 
 ```sh
-python -m ruff check src tests
-python -m ruff format --check src tests
-python -m unittest discover -s tests -v
-python -m build
-python -m pip install .
-cubic-py --version
+uv sync --locked
+uvx ruff check src tests
+uvx ruff format --check src tests
+uv run --locked python -m unittest discover -s tests -v
+uv build --clear --no-sources
 ```
 
-The API and CLI contracts live in [`../../spec`](../../spec).
+The API and CLI contracts live in the repository's
+[`spec`](https://github.com/Tim-1e/holocubic-cli/tree/main/spec) directory.
