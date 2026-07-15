@@ -170,6 +170,13 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _configure_stdio() -> None:
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if callable(reconfigure):
+            reconfigure(encoding="utf-8", errors="backslashreplace")
+
+
 def _format_bytes(value: int) -> str:
     if value < 1024:
         return f"{value} B"
@@ -523,6 +530,7 @@ class _Runtime:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
+    _configure_stdio()
     args = build_parser().parse_args(argv)
     try:
         _Runtime(args).execute()

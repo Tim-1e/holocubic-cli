@@ -21,6 +21,7 @@ class CliTests(unittest.TestCase):
             filter(None, (str(SOURCE), env.get("PYTHONPATH")))
         )
         env["CUBIC_CONFIG"] = str(config)
+        env["PYTHONIOENCODING"] = "cp1252"
         result = subprocess.run(
             [sys.executable, "-m", "holocubic_cli_python", *arguments],
             cwd=cwd,
